@@ -61,6 +61,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   getWeatherAnimation(String? mainCondition) {
+    print(mainCondition);
     if (mainCondition == null) return 'assets/json/sunny.json';
     switch (mainCondition.toLowerCase()) {
       case 'clouds':
@@ -97,7 +98,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         isLoading = false; // Set loading to false
         imageUrl =
             'http://openweathermap.org/img/wn/${weatherData['weather'][0]['icon']}.png';
-        String mainCondition = weatherData['weather'][0]['icon'];
+        mainCondition = weatherData['weather'][0]['main'];
       });
     } else {
       setState(() {
@@ -109,121 +110,127 @@ class _WeatherScreenState extends State<WeatherScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [Colors.blue, Colors.lightBlueAccent],
+      body: RefreshIndicator(
+        onRefresh: getCityName,
+        child: Container(
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [Colors.blue, Colors.lightBlueAccent],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: isLoading
-                ? Center(child: CircularProgressIndicator())
-                : error.isNotEmpty
-                    ? Center(
-                        child: Text(error,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 18)))
-                    : SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            if (weatherData.isNotEmpty)
-                              Text('Weather in ${weatherData['name']}',
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  )),
-                            const SizedBox(height: 10),
-                            if (weatherData.isNotEmpty &&
-                                weatherData['weather'][0]['icon'] != null)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                      '${weatherData['weather'][0]['main']}', // Now displays temperature in Celsius
-                                      style: const TextStyle(
-                                          fontSize: 18, color: Colors.white)),
-                                  const Spacer(),
-                                  Image.network(
-                                    imageUrl ?? '',
-                                    width: 50,
-                                    height: 50,
-                                  ),
-                                ],
-                              ),
-                            const SizedBox(height: 20),
-                            if (weatherData.isNotEmpty &&
-                                weatherData['main'] != null)
-                              Center(
-                                child: Column(
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : error.isNotEmpty
+                      ? Center(
+                          child: Text(error,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 18)))
+                      : SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              if (weatherData.isNotEmpty)
+                                Text('Weather in ${weatherData['name']}',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    )),
+                              const SizedBox(height: 10),
+                              if (weatherData.isNotEmpty &&
+                                  weatherData['weather'][0]['icon'] != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
-                                        '${weatherData['main']['temp'].round()}°C',
-                                        style: TextStyle(
-                                            fontSize: 42, color: Colors.white)),
-                                    Text(
-                                        'feels like ${weatherData['main']['feels_like'].round()}°C',
-                                        style: TextStyle(
-                                            fontSize: 12, color: Colors.white))
+                                        '${weatherData['weather'][0]['main']}', // Now displays temperature in Celsius
+                                        style: const TextStyle(
+                                            fontSize: 18, color: Colors.white)),
+                                    const Spacer(),
+                                    Image.network(
+                                      imageUrl ?? '',
+                                      width: 50,
+                                      height: 50,
+                                    ),
                                   ],
                                 ),
-                              ),
-                            Center(
-                                child: Lottie.asset(
-                                    getWeatherAnimation(mainCondition))),
-                            SizedBox(height: 10),
-                            if (weatherData.isNotEmpty &&
-                                weatherData['wind'] != null)
+                              const SizedBox(height: 20),
+                              if (weatherData.isNotEmpty &&
+                                  weatherData['main'] != null)
+                                Center(
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                          '${weatherData['main']['temp'].round()}°C',
+                                          style: TextStyle(
+                                              fontSize: 42,
+                                              color: Colors.white)),
+                                      Text(
+                                          'feels like ${weatherData['main']['feels_like'].round()}°C',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white))
+                                    ],
+                                  ),
+                                ),
+                              Center(
+                                  child: Lottie.asset(
+                                      getWeatherAnimation(mainCondition))),
+                              SizedBox(height: 10),
+                              if (weatherData.isNotEmpty &&
+                                  weatherData['wind'] != null)
+                                Row(
+                                  children: [
+                                    Icon(Icons.air,
+                                        color: Colors.white, size: 24),
+                                    SizedBox(width: 10),
+                                    Text(
+                                        'Wind: ${weatherData['wind']['speed']} m/s',
+                                        style: TextStyle(
+                                            fontSize: 18, color: Colors.white)),
+                                  ],
+                                ),
+                              SizedBox(height: 10),
                               Row(
                                 children: [
-                                  Icon(Icons.air,
+                                  Icon(Icons.water_drop,
                                       color: Colors.white, size: 24),
                                   SizedBox(width: 10),
                                   Text(
-                                      'Wind: ${weatherData['wind']['speed']} m/s',
+                                      'Humidity: ${weatherData['main']['humidity']}%',
                                       style: TextStyle(
                                           fontSize: 18, color: Colors.white)),
                                 ],
                               ),
-                            SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Icon(Icons.water_drop,
-                                    color: Colors.white, size: 24),
-                                SizedBox(width: 10),
-                                Text(
-                                    'Humidity: ${weatherData['main']['humidity']}%',
-                                    style: TextStyle(
-                                        fontSize: 18, color: Colors.white)),
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Icon(Icons.cloud,
-                                    color: Colors.white, size: 24),
-                                SizedBox(width: 10),
-                                Text(
-                                    'Cloudiness: ${weatherData['clouds']['all']}%',
-                                    style: TextStyle(
-                                        fontSize: 18, color: Colors.white)),
-                              ],
-                            ),
-                            SizedBox(height: 30),
-                            Center(
-                              child: Text(day,
-                                  style: const TextStyle(
-                                      fontSize: 14, color: Colors.white)),
-                            ),
-                          ],
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Icon(Icons.cloud,
+                                      color: Colors.white, size: 24),
+                                  SizedBox(width: 10),
+                                  Text(
+                                      'Cloudiness: ${weatherData['clouds']['all']}%',
+                                      style: TextStyle(
+                                          fontSize: 18, color: Colors.white)),
+                                ],
+                              ),
+                              SizedBox(height: 30),
+                              Center(
+                                child: Text(day,
+                                    style: const TextStyle(
+                                        fontSize: 14, color: Colors.white)),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+            ),
           ),
         ),
       ),
