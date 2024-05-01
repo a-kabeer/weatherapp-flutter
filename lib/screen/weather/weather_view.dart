@@ -140,8 +140,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
         imageUrl =
             'http://openweathermap.org/img/wn/${weatherData['weather'][0]['icon']}.png';
         mainCondition = weatherData['weather'][0]['main'];
-        mainDayCondition = mainCondition = weatherData['weather'][0]['main'];
-        mainNightCondition = weatherData['weather'][0]['main'];
+        mainDayCondition = mainCondition;
+        mainNightCondition = mainCondition;
         nightTime = isNightTime(weatherData);
       });
     } else {
